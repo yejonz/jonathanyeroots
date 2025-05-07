@@ -1,0 +1,621 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("LISTING_DATABASE_URL")
+}
+
+model AssumableMortgage {
+  id                           String    @id
+  currentBalance               Decimal
+  interestRate                 Decimal
+  monthlyPayment               Decimal
+  remainingTerm                Int
+  qualifyingIncome             Decimal?
+  qualifyingDti                Decimal?
+  assumabilityStatus           String
+  lastVerifiedDate             DateTime?
+  verificationNotes            String?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime
+  downPayment                  Decimal
+  monthlyAllInPayment          Decimal
+  monthlyHoa                   Decimal
+  monthlyInsurance             Decimal
+  monthlyPmi                   Decimal
+  monthlyPropertyTax           Decimal
+  percentDown                  Decimal
+  tileMonthlyPayment           String?
+  assumableDesirabilityScore   Decimal?
+  isAssumableDesirable         Boolean   @default(false)
+  maxDownPaymentThreshold      Decimal?
+  maxLoanBalanceRatioThreshold Decimal?
+  rawListingDataId             String?
+  rawLoanDataId                String?
+  Loan                         Loan?
+
+  @@index([rawListingDataId])
+  @@index([rawLoanDataId])
+}
+
+model DataCorrection {
+  id                   String           @id
+  entityType           EntityType
+  entityId             String
+  field                String
+  originalValue        Json?
+  correctedValue       Json
+  reason               String?
+  status               CorrectionStatus @default(ACTIVE)
+  appliedAt            DateTime?
+  createdBy            String
+  createdByAuditSource AuditSource
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime
+  column               String
+  fieldPath            String[]
+  isArrayField         Boolean
+  isJsonField          Boolean
+  rawDataId            String?
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([rawDataId])
+  @@index([status])
+}
+
+model Listing {
+  id                                      String           @id
+  mlsProviderId                           String
+  parcelNumber                            String
+  zipCode                                 String
+  rawDataHash                             String
+  mlsListingId                            String
+  lastMlsUpdate                           DateTime?
+  isAssumable                             Boolean          @default(false)
+  processingState                         String?
+  deletedAt                               DateTime?
+  status                                  ListingStatus
+  price                                   Decimal
+  propertyType                            PropertyType
+  bedrooms                                Int?
+  bathrooms                               Decimal?
+  squareFeet                              Int?
+  yearBuilt                               Int?
+  address                                 String
+  city                                    String?
+  state                                   String?
+  latitude                                Decimal
+  longitude                               Decimal
+  tileX                                   Int?
+  tileY                                   Int?
+  tileZ                                   Int?
+  amenities                               Json?
+  interiorFeatures                        Json?
+  exteriorFeatures                        Json?
+  parkingDetails                          Json?
+  associationDetails                      Json?
+  schoolDetails                           Json?
+  createdAt                               DateTime         @default(now())
+  updatedAt                               DateTime
+  listedAt                                DateTime?
+  lastStatusChange                        DateTime?
+  unitNumber                              String           @default("")
+  mlsInstanceId                           String           @default("")
+  photoUrls                               String[]
+  propertyRadarId                         String?          @unique
+  denormalizedAssumableMonthlyPayment     Decimal?
+  rawDataId                               String?
+  tilePrice                               String?
+  tileDenormalizedAssumableMonthlyPayment String?
+  isRootsListing                          Boolean          @default(false)
+  modifierScore                           Int              @default(0)
+  propertySubType                         String?
+  remarks                                 Json?
+  documentUrls                            String[]
+  videoUrls                               String[]
+  staticPriority                          Int?
+  tileId10                                BigInt?
+  tileId11                                BigInt?
+  tileId12                                BigInt?
+  tileId13                                BigInt?
+  tileId14                                BigInt?
+  tileId15                                BigInt?
+  tileId16                                BigInt?
+  tileId17                                BigInt?
+  tileId18                                BigInt?
+  tileId19                                BigInt?
+  tileId20                                BigInt?
+  tileId8                                 BigInt?
+  tileId9                                 BigInt?
+  tileId6                                 BigInt?
+  tileId7                                 BigInt?
+  denormalizedAssumableDownPayment        Decimal?
+  denormalizedAssumableInterestRate       Decimal?
+  denormalizedAssumableLoanType           LoanType?
+  hasPool                                 Boolean?
+  is55Plus                                Boolean?
+  monthlyHoa                              Decimal?
+  streetAddress                           String?
+  assumableDesirabilityScore              Decimal?
+  isAssumableDesirable                    Boolean          @default(false)
+  processingVersion                       String?
+  lotSizeAcres                            Decimal?
+  lotSizeSquareFeet                       Int?
+  agentDetails                            Json?
+  agentEmail                              String?
+  agentName                               String?
+  agentOfficeEmail                        String?
+  agentOfficeName                         String?
+  agentOfficePhone                        String?
+  agentPhone                              String?
+  coListingAgents                         Json?
+  denormalizedMlsInstanceLogoUrl          String?
+  denormalizedMlsInstanceName             String?
+  agentMlsId                              String?
+  denormalizedMlsInstanceAcronym          String?
+  agentOfficeMlsId                        String?
+  hasBasement                             Boolean?
+  stories                                 Int?
+  PropertyRadar                           PropertyRadar?   @relation(fields: [propertyRadarId], references: [id])
+  ListingAudit                            ListingAudit[]
+  ListingHistory                          ListingHistory[]
+  ListingLocation                         ListingLocation?
+  ListingPhoto                            ListingPhoto[]
+  ListingReport                           ListingReport[]
+
+  @@unique([zipCode, parcelNumber, unitNumber])
+  @@index([mlsProviderId])
+  @@index([price])
+  @@index([processingVersion])
+  @@index([propertyType])
+  @@index([rawDataId])
+  @@index([status])
+  @@index([tileId10, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId11, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId12, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId13, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId14, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId15, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId16, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId17, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId18, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId19, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId20, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId6, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId7, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId8, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileId9, status, staticPriority(sort: Desc), listedAt(sort: Desc)])
+  @@index([tileX, tileY, tileZ])
+}
+
+model ListingAudit {
+  id             String           @id
+  listingId      String
+  action         String
+  source         AuditSource
+  sourceId       String
+  sourceName     String
+  changes        Json?
+  metadata       Json?
+  createdAt      DateTime         @default(now())
+  Listing        Listing          @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  ListingHistory ListingHistory[]
+
+  @@index([createdAt])
+  @@index([listingId])
+  @@index([source])
+}
+
+model ListingHistory {
+  id            String        @id
+  listingId     String
+  price         Decimal
+  status        ListingStatus
+  rawData       Json
+  changedFields Json
+  effectiveDate DateTime
+  createdAt     DateTime      @default(now())
+  auditId       String?
+  ListingAudit  ListingAudit? @relation(fields: [auditId], references: [id])
+  Listing       Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+}
+
+model ListingLocation {
+  id        String                    @id
+  listingId String                    @unique
+  location  Unsupported("geography")?
+  Listing   Listing                   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([location], type: Gist)
+}
+
+model ListingPhoto {
+  id          String   @id
+  listingId   String
+  mlsUrl      String
+  s3Url       String?
+  order       Int
+  lastChecked DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model ListingReport {
+  id           String              @id
+  listingId    String
+  userId       String
+  reporterType ReporterType
+  reason       ListingReportReason
+  details      String?
+  status       String              @default("PENDING")
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime
+  Listing      Listing             @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model Loan {
+  id                    String             @id
+  propertyId            String
+  loanPosition          Int
+  purpose               String?
+  loanType              LoanType
+  recordingDate         DateTime
+  concurrent            Boolean            @default(false)
+  initialAmount         Decimal
+  remainingBalance      Decimal?
+  termYears             Int?
+  lenderName            String
+  rateType              String?
+  interestRate          Decimal?
+  currentPeriod         Int?
+  startingPeriod        Int?
+  totalPayments         Int?
+  maturityDate          DateTime?
+  monthlyPayment        Decimal?
+  ownerOccupied         Boolean?
+  assumableMortgageId   String?            @unique
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime
+  mlsInstanceId         String?
+  deletedAt             DateTime?
+  rawLoanDataId         String?
+  interestRateEstimated Boolean?
+  isAssumable           Boolean?
+  AssumableMortgage     AssumableMortgage? @relation(fields: [assumableMortgageId], references: [id])
+  PropertyRadar         PropertyRadar      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([mlsInstanceId])
+  @@index([propertyId])
+  @@index([rawLoanDataId])
+}
+
+model MlsInstanceDetails {
+  id          String   @id
+  instanceId  String   @unique
+  acronym     String?
+  name        String
+  mlsNumber   String?
+  logoUrl     String?
+  region      String?
+  state       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([instanceId])
+}
+
+model MlsInstanceVisibility {
+  id            String    @id
+  mlsInstanceId String    @unique
+  isHidden      Boolean   @default(false)
+  reason        String?
+  hiddenAt      DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+
+  @@index([isHidden])
+  @@index([mlsInstanceId])
+}
+
+model PropertyRadar {
+  id                             String    @id
+  parcelNumber                   String
+  address                        String
+  city                           String
+  state                          String
+  zipCode                        String
+  county                         String
+  propertyType                   String
+  yearBuilt                      Int?
+  units                          Int?
+  squareFeet                     String?
+  annualTaxes                    Decimal?
+  avm                            Decimal?
+  availableEquity                Decimal?
+  cltv                           Int?
+  equityPercent                  Int?
+  ownerName1                     String?
+  ownerName2                     String?
+  ownerAddress                   String?
+  ownerCity                      String?
+  ownerState                     String?
+  ownerZip                       String?
+  lastTransferDate               DateTime?
+  lastTransferValue              Decimal?
+  lastTransferType               String?
+  lastTransferDownPayment        Decimal?
+  lastTransferDownPaymentPercent Int?
+  deletedAt                      DateTime?
+  loanDataFetchedAt              DateTime?
+  denormalizedListingUnitNumber  String    @default("")
+  needsReview                    Boolean   @default(false)
+  reviewReason                   String?
+  unitNumber                     String    @default("")
+  listingId                      String?
+  rawLoanDataId                  String?
+  createdAt                      DateTime  @default(now())
+  updatedAt                      DateTime  @default(now())
+  Listing                        Listing?
+  Loan                           Loan[]
+
+  @@index([rawLoanDataId])
+  @@index([zipCode, parcelNumber, denormalizedListingUnitNumber])
+}
+
+model RawListingData {
+  id                    String         @id
+  mlsProviderId         String
+  rawData               Json
+  rawDataHash           String         @unique
+  status                String         @default("PENDING")
+  errorMessage          String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime
+  processedAt           DateTime?
+  parcelNumber          String?
+  zipCode               String?
+  mlsStatus             String?
+  modificationTimestamp DateTime?
+  mlsInstanceId         String?
+  propertyType          String?
+  statusChangeTimestamp DateTime?
+  unitNumber            String         @default("")
+  unparsedAddress       String?
+  loanDataError         String?
+  loanDataPullStatus    DataPullStatus @default(PENDING)
+  photosPullError       String?
+  photosPullStatus      DataPullStatus @default(PENDING)
+  rawLoanDataId         String?
+  rawPhotoDataId        String?
+  processingVersion     String?
+  lastPhotosPullAt      DateTime?
+  photosCount           Int?
+  photosPullAttempts    Int            @default(0)
+  pullerVersion         String?
+  RawLoanData           RawLoanData?   @relation(fields: [rawLoanDataId], references: [id])
+  RawPhotoData          RawPhotoData?  @relation(fields: [rawPhotoDataId], references: [id])
+
+  @@index([createdAt])
+  @@index([loanDataPullStatus])
+  @@index([mlsInstanceId])
+  @@index([mlsProviderId])
+  @@index([mlsStatus])
+  @@index([modificationTimestamp])
+  @@index([photosPullStatus])
+  @@index([propertyType])
+  @@index([rawLoanDataId])
+  @@index([rawPhotoDataId])
+  @@index([statusChangeTimestamp])
+  @@index([status])
+  @@index([zipCode, parcelNumber, unitNumber])
+}
+
+model RawLoanData {
+  id               String           @id
+  mlsProviderId    String
+  mlsInstanceId    String?
+  parcelNumber     String?
+  zipCode          String?
+  unitNumber       String           @default("")
+  rawData          Json
+  rawDataHash      String           @unique
+  status           String           @default("PENDING")
+  errorMessage     String?
+  processedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  apiCriteria      Json?
+  rawListingDataId String?
+  RawListingData   RawListingData[]
+
+  @@index([createdAt])
+  @@index([mlsInstanceId])
+  @@index([mlsProviderId])
+  @@index([rawListingDataId])
+  @@index([status])
+  @@index([zipCode, parcelNumber, unitNumber])
+}
+
+model RawPhotoData {
+  id               String                @id
+  mlsListingId     String
+  mlsProviderId    String
+  rawResponse      Json
+  headers          Json?
+  status           PhotoProcessingStatus @default(PENDING)
+  errorMessage     String?
+  processedAt      DateTime?
+  rawListingId     String                @unique
+  photoUrls        String[]
+  createdAt        DateTime              @default(now())
+  rawDataHash      String                @unique
+  rawListingDataId String?
+  RawListingData   RawListingData[]
+
+  @@unique([mlsListingId, createdAt])
+  @@index([mlsListingId])
+  @@index([rawListingDataId])
+  @@index([rawListingId])
+  @@index([status])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
+enum AuditSource {
+  ADMIN
+  USER
+  MLS_SYNC
+  SYSTEM_CLEANUP
+  DATA_MIGRATION
+  API_WEBHOOK
+  UNKNOWN
+}
+
+enum CorrectionStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum DataPullStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  HASH_MATCHED
+  NEW
+  SKIPPED_INACTIVE
+  INACTIVE
+  NO_RESULTS
+  MULTIPLE_RESULTS
+  EXISTING_DATA_LINKED
+  SKIPPED_UNDER_CONSTRUCTION
+  SKIPPED_NOT_VA_OR_FHA
+  PENDING_RETRY
+}
+
+enum EntityType {
+  RAW_LISTING_DATA
+  RAW_LOAN_DATA
+  RAW_PHOTO_DATA
+  LISTING_OVERRIDE
+  LISTING_PERMANENT
+  LOAN_OVERRIDE
+  LOAN_PERMANENT
+  LISTING_PHOTO_OVERRIDE
+  LISTING_PHOTO_PERMANENT
+  PROPERTY_RADAR_OVERRIDE
+  PROPERTY_RADAR_PERMANENT
+  ASSUMABLE_MORTGAGE_OVERRIDE
+  ASSUMABLE_MORTGAGE_PERMANENT
+  MLS_INSTANCE_OVERRIDE
+  MLS_INSTANCE_PERMANENT
+  LISTING_HISTORY_OVERRIDE
+  LISTING_HISTORY_PERMANENT
+}
+
+enum ListingReportReason {
+  NO_LONGER_AVAILABLE
+  INCORRECT_INFORMATION
+  FRAUDULENT_OR_SPAM
+}
+
+enum ListingStatus {
+  ACTIVE
+  PENDING
+  SOLD
+  WITHDRAWN
+  EXPIRED
+  ACTIVE_CONTINGENT
+  ACTIVE_KICK_OUT
+  ACTIVE_OPTION_CONTRACT
+  ACTIVE_UNDER_CONTRACT
+  ACTIVE_WITH_CONTRACT
+  APPROVED
+  ARCHIVED
+  AUCTION
+  BACK_ON_MARKET
+  CANCELLED
+  CLOSED
+  COMING_SOON
+  CONTINGENT
+  CONTINGENT_CONTINUE_TO_SHOW
+  CONTINGENT_NO_SHOW
+  DELETED
+  HOLD
+  IN_CONTRACT
+  LEASED
+  NEW
+  OFF_MARKET
+  PENDING_CONTINUE_TO_SHOW
+  PENDING_NO_SHOW
+  PENDING_TAKING_BACKUPS
+  PRE_FORECLOSURE
+  PRE_MLS
+  PRICE_CHANGE
+  REACTIVATED
+  RENTED
+  RESERVED
+  SHORT_SALE
+  TEMPORARILY_OFF_MARKET
+  TERMINATED
+  UNDER_CONTRACT
+  UNKNOWN
+}
+
+enum LoanType {
+  FHA
+  VA
+  CONVENTIONAL
+  OTHER
+  PRIVATE
+  CONFORMING
+  NON_CONFORMING_JUMBO
+}
+
+enum PhotoProcessingStatus {
+  PENDING
+  PROCESSED
+  ERROR
+  SKIPPED
+  CONNECTED
+}
+
+enum PropertyType {
+  SINGLE_FAMILY
+  CONDO
+  TOWNHOUSE
+  MULTI_FAMILY
+  LAND
+  COMMERCIAL
+  OTHER
+  MANUFACTURED
+  VACATION
+  AGRICULTURAL
+  INDUSTRIAL
+  MIXED_USE
+  RETAIL
+  OFFICE
+  APARTMENT_BUILDING
+  DEVELOPMENT
+}
+
+enum ReporterType {
+  CONSUMER
+  REAL_ESTATE_PROFESSIONAL
+}
