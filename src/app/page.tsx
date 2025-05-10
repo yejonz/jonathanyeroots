@@ -27,12 +27,31 @@ export default function Home() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/listings/recent')
+      // const response = await fetch('/api/listings/recent')
+      // if (!response.ok) {
+      //   throw new Error('Failed to fetch listings')
+      // }
+      // const data = await response.json()
+      // setListings(data)
+
+      // const recent = await fetch('/api/listings/recent')
+      // if (!recent.ok) {
+      //   throw new Error('Failed to fetch listings')
+      // }
+      // const data1 = await recent.json()
+      // console.log(data1)
+
+      const endDate = new Date('2025-03-04T12:46:03.035Z').toISOString();
+      const startDate = new Date('2025-03-03T12:46:03.035Z').toISOString();
+
+      const response = await fetch(
+        `/api/listings/filter?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch listings')
+        throw new Error('Failed to fetch listings');
       }
-      const data = await response.json()
-      setListings(data)
+      const data = await response.json();
+      console.log(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
