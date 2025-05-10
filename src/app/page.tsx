@@ -34,15 +34,15 @@ export default function Home() {
       // const data = await response.json()
       // setListings(data)
 
-      // const recent = await fetch('/api/listings/recent')
-      // if (!recent.ok) {
-      //   throw new Error('Failed to fetch listings')
-      // }
-      // const data1 = await recent.json()
-      // console.log(data1)
+      const recent = await fetch('/api/listings/recent')
+      if (!recent.ok) {
+        throw new Error('Failed to fetch listings')
+      }
+      const data1 = await recent.json()
+      console.log(data1)
 
-      const endDate = new Date('2025-03-04T12:46:03.035Z').toISOString();
-      const startDate = new Date('2025-03-03T12:46:03.035Z').toISOString();
+      const endDate = new Date('2025-03-04T01:46:03.035Z').toISOString();
+      const startDate = new Date('2025-03-03T23:46:03.035Z').toISOString();
 
       const response = await fetch(
         `/api/listings/filter?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`

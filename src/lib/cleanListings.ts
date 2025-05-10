@@ -5,6 +5,7 @@
     createdAt: Date;
     unparsedAddress: string | null;
     rawPhotoDataId: string | null;
+    zipCode: string | null;
     // Add other fields as needed
   }
 
@@ -78,11 +79,12 @@
   
     private processSingleListing(rawRow: RawListingData): ProcessedListing | null {
       try {
+        const formattedAddress = this.formatAddress(rawRow.rawData);
         const listing: ProcessedListing = {
           id: this.cleanField(rawRow.id, String),
-          address: this.cleanField(this.getFromRawData(rawRow, 'unparsedAddress'), String),
-          city: this.cleanField(this.getFromRawData(rawRow, 'city'), String),
-          state: this.cleanField(this.getFromRawData(rawRow, 'state'), String),
+          address: formattedAddress.address,
+          city: formattedAddress.city,
+          state: formattedAddress.state,
           price: this.cleanField(this.getFromRawData(rawRow, 'price'), Number),
           bedrooms: this.cleanField(this.getFromRawData(rawRow, 'bedrooms'), Number),
           bathrooms: this.cleanField(this.getFromRawData(rawRow, 'bathrooms'), Number),
@@ -150,5 +152,62 @@
         return row.rawData[key];
       }
       return (row as any)[key];
+    }
+
+    private formatAddress(rawData: any): { address: string; city: string; state: string } {
+      if (!rawData) {
+        return { address: '', city: '', state: '' };
+      }
+    
+      // Extract street components
+      const streetNumber = rawData.StreetNumber || '';
+      const streetDirPrefix = rawData.StreetDirPrefix || '';
+      const streetName = rawData.StreetName || '';
+      const streetSuffix = rawData.StreetSuffix || '';
+      const streetDirSuffix = rawData.StreetDirSuffix || '';
+      const unitNumber = rawData.UnitNumber || '';
+      
+      // Extract city, state, and postal code
+      const city = rawData.City || '';
+      const state = rawData.StateOrProvince || '';
+      const postalCode = rawData.PostalCode || '';
+      
+      // Format street components with proper capitalization
+      const formatCapitalization = (text: string): string => {
+        if (!text) return '';
+        return text
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      };
+      
+      // Build the street address
+      let streetAddress = [
+        streetNumber,
+        streetDirPrefix,
+        formatCapitalization(streetName),
+        streetSuffix,
+        streetDirSuffix
+      ].filter(Boolean).join(' ');
+      
+      // Add unit number if available
+      if (unitNumber) {
+        streetAddress += ` ${unitNumber}`;
+      }
+      
+      // Format city with proper capitalization
+      const formattedCity = formatCapitalization(city);
+      
+      // Format state as uppercase
+      const formattedState = state.toUpperCase();
+      
+      // Build the full address in the required format
+      const fullAddress = `${streetAddress}, ${formattedCity}, ${formattedState}, ${postalCode}`;
+      
+      return {
+        address: fullAddress,
+        city: formattedCity,
+        state: formattedState
+      };
     }
   }
