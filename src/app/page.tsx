@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Button, Heading, VStack, Text, Image, Box, SimpleGrid } from "@chakra-ui/react"
 
 interface Listing {
   id: string
@@ -27,31 +26,12 @@ export default function Home() {
     setLoading(true)
     setError(null)
     try {
-      // const response = await fetch('/api/listings/recent')
-      // if (!response.ok) {
-      //   throw new Error('Failed to fetch listings')
-      // }
-      // const data = await response.json()
-      // setListings(data)
-
-      const recent = await fetch('/api/listings/recent')
-      if (!recent.ok) {
+      const response = await fetch('/api/listings/recent')
+      if (!response.ok) {
         throw new Error('Failed to fetch listings')
       }
-      const data1 = await recent.json()
-      console.log(data1)
-
-      const endDate = new Date('2025-03-04T01:16:03.035Z').toISOString();
-      const startDate = new Date('2025-03-04T00:16:03.035Z').toISOString();
-
-      const response = await fetch(
-        `/api/listings/filter?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch listings');
-      }
-      const data = await response.json();
-      console.log(data)
+      const data = await response.json()
+      setListings(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -61,7 +41,7 @@ export default function Home() {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center w-full max-w-6xl">
+      {/* <main className="flex flex-col gap-[32px] row-start-2 items-center w-full max-w-6xl">
         <Heading>Recent Listings</Heading>
         
         <Button
@@ -118,7 +98,7 @@ export default function Home() {
             </Box>
           ))}
         </SimpleGrid>
-      </main>
+      </main> */}
     </div>
   )
 }

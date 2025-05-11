@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { ListingDataProcessor } from '@/lib/cleanListings'
 
 export async function GET(request: Request) {
   try {
-    // Start timer for querying, fetching, and processing
-    const startTime = performance.now();
-    
     const { searchParams } = new URL(request.url);
     const startDateStr = searchParams.get('startDate');
     const endDateStr = searchParams.get('endDate');
@@ -28,16 +24,8 @@ export async function GET(request: Request) {
       );
     }
 
-    const rawListings = await prisma.rawListingData.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    });
-    
-    const rawPhotos = await prisma.rawPhotoData.findMany({
+    // Count the listings in the specified date range
+    const listingsCount = await prisma.rawListingData.count({
       where: {
         createdAt: {
           gte: startDate,
@@ -46,20 +34,13 @@ export async function GET(request: Request) {
       },
     });
 
-    // Process the raw data using the ListingDataProcessor
-    const processor = new ListingDataProcessor(rawListings, rawPhotos);
-    const listings = processor.processAll();
-    
-    // Log timer info (should show in terminal)
-    const endTime = performance.now();
-    const totalTime = endTime - startTime;
-    console.log(`Processed ${rawListings.length} listings in ${totalTime.toFixed(2)}ms`);
-
-    return NextResponse.json(listings);
+    return NextResponse.json({
+      count: listingsCount,
+    });
   } catch (error) {
-    console.error('Error fetching filtered listings:', error);
+    console.error('Error counting listings:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch filtered listings' },
+      { error: 'Failed to count listings' },
       { status: 500 }
     );
   }
