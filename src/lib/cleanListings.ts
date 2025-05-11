@@ -48,7 +48,8 @@
     photoUrls: string[];
     status: string;
     createdAt: string;
-    // Add other fields as needed
+    // Non-displayed fields
+    zipCode: string;
   }
   
   export class ListingDataProcessor {
@@ -85,14 +86,19 @@
           address: formattedAddress.address,
           city: formattedAddress.city,
           state: formattedAddress.state,
-          price: this.cleanField(this.getFromRawData(rawRow, 'price'), Number),
-          bedrooms: this.cleanField(this.getFromRawData(rawRow, 'bedrooms'), Number),
-          bathrooms: this.cleanField(this.getFromRawData(rawRow, 'bathrooms'), Number),
-          squareFeet: this.cleanField(this.getFromRawData(rawRow, 'squareFeet'), Number),
-          propertyType: this.cleanField(this.getFromRawData(rawRow, 'propertyType'), String),
+          // ListPrice and OriginalListPrice properties also exist in rawData
+          price: this.cleanField(this.getFromRawData(rawRow, 'CurrentPrice'), Number),
+          // Bedrooms Possible property also exists
+          bedrooms: this.cleanField(this.getFromRawData(rawRow, 'BedroomsTotal'), Number),
+          // BathroomsFull, BathroomsHalf, etc also exist
+          bathrooms: this.cleanField(this.getFromRawData(rawRow, 'BathroomsTotalInteger'), Number),
+          squareFeet: this.cleanField(this.getFromRawData(rawRow, 'LotSizeSquareFeet'), Number),
+          propertyType: this.cleanField(this.getFromRawData(rawRow, 'PropertyType'), String),
           photoUrls: this.getRelatedPhotos(rawRow.rawPhotoDataId),
           status: this.cleanField(this.getFromRawData(rawRow, 'mlsStatus'), String, 'ACTIVE'),
           createdAt: this.cleanField(rawRow.createdAt, this.parseDateTime) || '',
+          // Other fields I won't display for this project:
+          zipCode: this.cleanField(rawRow.zipCode, String) || '',
         };
         return listing;
       } catch (error) {

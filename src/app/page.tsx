@@ -41,8 +41,8 @@ export default function Home() {
       const data1 = await recent.json()
       console.log(data1)
 
-      const endDate = new Date('2025-03-04T01:46:03.035Z').toISOString();
-      const startDate = new Date('2025-03-03T23:46:03.035Z').toISOString();
+      const endDate = new Date('2025-03-04T01:16:03.035Z').toISOString();
+      const startDate = new Date('2025-03-04T00:16:03.035Z').toISOString();
 
       const response = await fetch(
         `/api/listings/filter?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
