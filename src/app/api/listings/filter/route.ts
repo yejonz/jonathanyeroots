@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const raw_listings = await prisma.rawListingData.findMany({
+    const rawListings = await prisma.rawListingData.findMany({
       where: {
         createdAt: {
           gte: startDate,
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       },
     })
     
-    const raw_photos = await prisma.rawPhotoData.findMany({
+    const rawPhotos = await prisma.rawPhotoData.findMany({
       where: {
         createdAt: {
           gte: startDate,
@@ -45,18 +45,9 @@ export async function GET(request: Request) {
       //   createdAt: 'desc'
       // },
     })
-    
-    const raw_loans = await prisma.rawLoanData.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    })
 
     // Process the raw data using the ListingDataProcessor
-    const processor = new ListingDataProcessor(raw_listings, raw_photos, raw_loans);
+    const processor = new ListingDataProcessor(rawListings, rawPhotos);
     const listings = processor.processAll();
 
     return NextResponse.json(listings)
