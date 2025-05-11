@@ -20,6 +20,7 @@
     "@roots-homes/prisma-schema-mls-system": "1.2.5",
     "@tanstack/react-query": "^5.62.2",
     "@tanstack/react-query-devtools": "^5.62.2",
+    "@types/mapbox-gl": "^3.4.1",
     "axios": "^1.7.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

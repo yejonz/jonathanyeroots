@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import { DateRange } from 'react-day-picker';
 import { parse, isValid, isAfter, isBefore, format } from 'date-fns';
+import ListingMap from '@/components/ui/listing-map';
 
 interface Listing {
     id: string
@@ -32,6 +33,7 @@ export default function Page() {
         setDateRangeText(e.target.value);
     };
 
+    // This useEffect parses text into DateRange but doesn't trigger API calls
     useEffect(() =>  {
         if (dateRangeText.length === 21) {
         try {
@@ -76,15 +78,17 @@ export default function Page() {
         }
     }}, [dateRangeText]);
 
+    // This useEffect fetches the count when dateRange changes
     useEffect(() => {
         const fetchListingsCount = async () => {
-            setLoading(true)
-            setError(null)
+            if (!dateRange || !dateRange.from || !dateRange.to) {
+                return;
+            }
+            
+            setLoading(true);
+            setError(null);
+            
             try {
-                if (!dateRange || !dateRange.from || !dateRange.to) {
-                    return;
-                }
-
                 // Format dates for API request
                 const startDate = dateRange.from.toISOString();
                 const endDate = dateRange.to.toISOString();
@@ -108,10 +112,57 @@ export default function Page() {
         }
 
         fetchListingsCount();
-    }, [dateRange])
+    }, [dateRange]);
+    
+    // Handle Enter key press to submit - only when not loading
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        // Only process Enter key if not loading and input is properly formatted
+        if (e.key === 'Enter' && !loading && dateRangeText.length === 21) {
+            e.preventDefault();
+            handleSubmit();
+        }
+    };
+    
+    // Submit function that clears the input and fetches map data
+    const handleSubmit = async () => {
+        if (loading || !dateRange || !dateRange.from || !dateRange.to) return;
+        
+        try {
+            setLoading(true);
+            setError(null);
+            
+            // Format dates for API request
+            const startDate = dateRange.from.toISOString();
+            const endDate = dateRange.to.toISOString();
+            
+            // Add your API call here to fetch the listings for the map
+            // Example implementation:
+            const response = await fetch(
+                `/api/listings/filter?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
+            );
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch map data');
+            }
+            
+            const mapData = await response.json();
+            setListings(mapData);
+            
+            // Reset the input field only after successful submission
+            setDateRangeText('');
+            
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred fetching map data');
+        } finally {
+            setLoading(false);
+        }
+    };
   
     return (
         <div>
+            {/* <div>
+                {listings.length > 0 && <ListingMap listings={listings} />}
+            </div> */}
             <div className="relative">
                 <p>
                     Enter Date Range:
@@ -121,14 +172,24 @@ export default function Page() {
                     placeholder="MM-DD-YYYY:MM-DD-YYYY"
                     value={dateRangeText}
                     onChange={handleDateChange}
+                    onKeyDown={handleKeyDown}
                     className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     style={{ width: '24ch' }} // Width based on character count
                     maxLength={21} // Restrict to exactly MM-DD-YYYY format length
                 />
-                <p>
+                <p className="mt-2 text-sm">
                     {subtext}
                 </p>
-
+                {error && (
+                    <p className="mt-2 text-sm text-red-600">
+                        {error}
+                    </p>
+                )}
+                {loading && (
+                    <p className="mt-2 text-sm text-blue-600">
+                        Loading data...
+                    </p>
+                )}
             </div>
         </div>
     )
