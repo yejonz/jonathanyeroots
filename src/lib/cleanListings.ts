@@ -26,6 +26,9 @@ interface ProcessedListing {
   photoUrls: string[];
   status: string;
   createdAt: string;
+  // Used to locate marker in mapbox component:
+  latitude: number;
+  longitude: number;
   // Other fields I won't display for this project:
   zipCode: string;
 }
@@ -93,6 +96,8 @@ export class ListingDataProcessor {
         photoUrls: this.getRelatedPhotos(rawRow.rawPhotoDataId),
         status: this.cleanField(this.getFromRawData(rawRow, 'mlsStatus'), String, 'ACTIVE'),
         createdAt: this.cleanField(rawRow.createdAt, this.parseDateTime) || '',
+        latitude: this.cleanField(this.getFromRawData(rawRow, 'Latitude'), Number),
+        longitude: this.cleanField(this.getFromRawData(rawRow, 'Longitude'), Number),
         zipCode: this.cleanField(rawRow.zipCode, String) || '',
       };
     } catch (error) {

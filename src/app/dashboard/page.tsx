@@ -145,8 +145,9 @@ export default function Page() {
                 throw new Error('Failed to fetch map data');
             }
             
-            const mapData = await response.json();
-            setListings(mapData);
+            const cleanedListings = await response.json();
+            setListings(cleanedListings);
+            console.log(cleanedListings)
             
             // Reset the input field only after successful submission
             setDateRangeText('');
