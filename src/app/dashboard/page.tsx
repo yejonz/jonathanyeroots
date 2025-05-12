@@ -4,6 +4,7 @@ import { useState, useEffect, type ChangeEvent, type KeyboardEvent } from "react
 import type { DateRange } from "react-day-picker"
 import { parse, isValid, isBefore } from "date-fns"
 import ListingMap from "@/components/ui/listing-map"
+import type { CSSProperties } from "react"
 
 interface Listing {
   id: string
@@ -20,6 +21,26 @@ interface Listing {
   createdAt: string
   latitude: number
   longitude: number
+}
+
+interface Styles {
+  container: CSSProperties
+  header: CSSProperties
+  title: CSSProperties
+  subtitle: CSSProperties
+  mainContent: CSSProperties
+  mapSection: CSSProperties
+  controlsSection: CSSProperties
+  formGroup: CSSProperties
+  label: CSSProperties
+  input: CSSProperties
+  button: (disabled: boolean) => CSSProperties
+  searchCard: CSSProperties
+  searchCardTitle: CSSProperties
+  searchCardItem: CSSProperties
+  reuseButton: (loading: boolean) => CSSProperties
+  statusText: CSSProperties
+  errorText: CSSProperties
 }
 
 export default function Page() {
@@ -234,7 +255,7 @@ export default function Page() {
     }
   }
 
-  const styles = {
+  const styles: Styles = {
     container: {
       display: "flex",
       flexDirection: "column",
