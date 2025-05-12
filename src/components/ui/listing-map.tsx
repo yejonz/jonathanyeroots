@@ -6,12 +6,20 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Define your Listing type based on your data structure
 interface Listing {
-  id: string;
-  title: string;
-  latitude: number;
-  longitude: number;
-  price?: number;
-  // Add other relevant fields
+  id: string
+  address: string
+  city: string | null
+  state: string | null
+  price: number
+  bedrooms: number | null
+  bathrooms: number | null
+  squareFeet: number | null
+  propertyType: string
+  photoUrls: string[]
+  status: string
+  createdAt: string
+  latitude: number
+  longitude: number
 }
 
 interface ListingMapProps {
@@ -22,7 +30,7 @@ interface ListingMapProps {
 
 export default function ListingMap({ listings, height = '600px', width = '100%' }: ListingMapProps) {
   // You'll need to add your Mapbox access token to your environment variables
-  const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_API_SECRET_KEY;
   
   const [viewState, setViewState] = useState({
     latitude: 37.7749, // Default coordinates (San Francisco)
@@ -87,7 +95,7 @@ export default function ListingMap({ listings, height = '600px', width = '100%' 
             anchor="bottom"
           >
             <div className="p-2 max-w-xs">
-              <h3 className="font-bold">{selectedListing.title}</h3>
+              <h3 className="font-bold">{selectedListing.address}</h3>
               <p className="text-sm">${selectedListing.price}</p>
               {/* Add more listing details here */}
             </div>

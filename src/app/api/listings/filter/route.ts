@@ -10,6 +10,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const startDateStr = searchParams.get('startDate');
     const endDateStr = searchParams.get('endDate');
+    const minPriceStr = searchParams.get('minPrice');
+    const maxPriceStr = searchParams.get('maxPrice');
 
     if (!startDateStr || !endDateStr) {
       return NextResponse.json(
@@ -20,10 +22,19 @@ export async function GET(request: Request) {
 
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
+    const minPrice = minPriceStr ? parseFloat(minPriceStr) : undefined;
+    const maxPrice = maxPriceStr ? parseFloat(maxPriceStr) : undefined;
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return NextResponse.json(
         { error: 'Invalid date format for startDate or endDate' },
+        { status: 400 }
+      );
+    }
+
+    if ((minPriceStr && isNaN(minPrice!)) || (maxPriceStr && isNaN(maxPrice!))) {
+      return NextResponse.json(
+        { error: 'Invalid price format for minPrice or maxPrice' },
         { status: 400 }
       );
     }
@@ -34,15 +45,27 @@ export async function GET(request: Request) {
           gte: startDate,
           lte: endDate,
         },
+        rawData: {
+          path: ['CurrentPrice'],
+          not: { equals: null },
+          ...(minPrice !== undefined && {
+            gte: minPrice
+          }),
+          ...(maxPrice !== undefined && {
+            lte: maxPrice
+          })
+        }
       },
     });
+
+    // Get the IDs of the filtered listings
+    const listingIds = rawListings.map(listing => listing.id);
     
     const rawPhotos = await prisma.rawPhotoData.findMany({
       where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
+        rawListingId: {
+          in: listingIds
+        }
       },
     });
 

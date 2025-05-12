@@ -6,6 +6,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const startDateStr = searchParams.get('startDate');
     const endDateStr = searchParams.get('endDate');
+    const minPriceStr = searchParams.get('minPrice');
+    const maxPriceStr = searchParams.get('maxPrice');
 
     if (!startDateStr || !endDateStr) {
       return NextResponse.json(
@@ -16,6 +18,8 @@ export async function GET(request: Request) {
 
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
+    const minPrice = minPriceStr ? parseFloat(minPriceStr) : undefined;
+    const maxPrice = maxPriceStr ? parseFloat(maxPriceStr) : undefined;
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return NextResponse.json(
@@ -24,13 +28,30 @@ export async function GET(request: Request) {
       );
     }
 
-    // Count the listings in the specified date range
+    if ((minPriceStr && isNaN(minPrice!)) || (maxPriceStr && isNaN(maxPrice!))) {
+      return NextResponse.json(
+        { error: 'Invalid price format for minPrice or maxPrice' },
+        { status: 400 }
+      );
+    }
+
+    // Count the listings in the specified date range and price range
     const listingsCount = await prisma.rawListingData.count({
       where: {
         createdAt: {
           gte: startDate,
           lte: endDate,
         },
+        rawData: {
+          path: ['CurrentPrice'],
+          not: { equals: null },
+          ...(minPrice !== undefined && {
+            gte: minPrice
+          }),
+          ...(maxPrice !== undefined && {
+            lte: maxPrice
+          })
+        }
       },
     });
 
