@@ -13,6 +13,7 @@ interface RawPhotoData {
   photoUrls: string[];
 }
 
+// Cleaned listing that is returned
 interface ProcessedListing {
   id: string;
   address: string;
@@ -38,11 +39,10 @@ interface ProcessedListing {
  * The ListingDataProcessor processes RawListingData and RawPhotoData 
  * (within a given time frame) to return cleaned listings.
  * 
- * The cleaned listings include the essential attributes (i.e. the
- * attributes queried in the /api/listings/recent example) that 
- * I will display on my dashboard for this project. Not all attributes 
- * from the provided Listing data model are included, but enough so
- * that technical proficiency in data processing/cleaning is shown.
+ * The cleaned listings include the essential attributes that I will 
+ * display on my dashboard for this project. Not all attributes from 
+ * the provided Listing data model are included, but enough so that 
+ * technical proficiency in data processing/cleaning is displayed.
  *
  * @example
  * const processor = new ListingDataProcessor(raw_listings, raw_photos);
@@ -73,7 +73,7 @@ export class ListingDataProcessor {
   }
 
   /**
-   * Processes a single raw listing into a formatted listing.
+   * Processes a single raw listing into a cleaned listing.
    * @param {RawListingData} rawRow - The raw listing data to process
    * @returns {ProcessedListing | null} The processed listing or null if processing failed
    */

@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { ListingDataProcessor } from '@/lib/cleanListings'
 
+/**
+ * This GET API route translates the query to fetch raw listings and photo data within both date and price ranges and uses the data processor class to process them into cleaned listings. The time for querying, fetching, and processing is displayed in the terminal.
+ */
 export async function GET(request: Request) {
   try {
     // Start timer for querying, fetching, and processing
@@ -61,6 +64,7 @@ export async function GET(request: Request) {
     // Get the IDs of the filtered listings
     const listingIds = rawListings.map(listing => listing.id);
     
+    // Only fetch rawPhotos whose rawListingId is in listingsIds
     const rawPhotos = await prisma.rawPhotoData.findMany({
       where: {
         rawListingId: {

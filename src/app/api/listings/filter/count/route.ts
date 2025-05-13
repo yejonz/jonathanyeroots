@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+/**
+ * This GET API route translates the query to fetch raw listings within both date and price ranges and returns the count of listings found.
+ */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

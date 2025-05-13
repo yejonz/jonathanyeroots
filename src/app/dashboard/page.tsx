@@ -23,6 +23,7 @@ interface Listing {
   longitude: number
 }
 
+// Consolidated styles for Dashboard's elements
 interface Styles {
   container: CSSProperties
   header: CSSProperties
@@ -43,6 +44,9 @@ interface Styles {
   errorText: CSSProperties
 }
 
+/**
+ * This page is a dashboard featuring a date/price filter for listings and a Mapbox map to display them.
+ */
 export default function Page() {
   const [dateRangeText, setDateRangeText] = useState<string>("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
@@ -65,7 +69,7 @@ export default function Page() {
     setPriceRangeText(e.target.value)
   }
 
-  // This useEffect parses text into DateRange but doesn't trigger API calls
+  // This useEffect parses text into DateRange
   useEffect(() => {
     if (dateRangeText.length === 21) {
       try {
@@ -194,6 +198,8 @@ export default function Page() {
     }
 
     fetchListingsCount()
+    // dependent on if date/price ranges are valid but ALSO changes in
+    // date/price ranges to update with listings/count API fetch
   }, [dateRange, priceRange, isDateRangeValid, isPriceRangeValid])
 
   // Handle Enter key press to submit - only when not loading and both fields are valid
@@ -237,7 +243,6 @@ export default function Page() {
 
       const cleanedListings = await response.json()
       setListings(cleanedListings)
-      console.log(cleanedListings)
 
       // Store the last submitted search parameters
       setLastSubmission({
@@ -255,6 +260,7 @@ export default function Page() {
     }
   }
 
+  // Dashboard CSS styles (inspired by Roots' color scheme!)
   const styles: Styles = {
     container: {
       display: "flex",

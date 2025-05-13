@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Map, { Marker, Popup, NavigationControl } from "react-map-gl/mapbox"
 import "mapbox-gl/dist/mapbox-gl.css"
 
-// Define your Listing type based on your data structure
+// Data displayed for each listing in map
 interface Listing {
   id: string
   address: string
@@ -18,29 +18,45 @@ interface Listing {
   photoUrls: string[]
   status: string
   createdAt: string
+  // Needed to place listing marker on map
   latitude: number
   longitude: number
 }
 
 interface ListingMapProps {
+  // Listings data loaded into map
   listings: Listing[]
+  // Size of mapbox component on page
   height?: string
   width?: string
 }
 
+/**
+ * ListingMap displays a Mapbox map with the provided listings. A marker is displayed on the map at each listing's coordinates and can be selected to see each listing's information.
+ * 
+ * @param {Object[]} listings - Array of listings to display on the map
+ * @param {string} height - Height of the map container
+ * @param {string} width - Width of the map container
+ * 
+ * @example
+ * <ListingMap 
+ *   listings={listingsData} 
+ *   height="500px" 
+ *   width="100%" 
+ * />
+ */
 export default function ListingMap({ listings, height = "1000px", width = "80%" }: ListingMapProps) {
-  // You'll need to add your Mapbox access token to your environment variables
   const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_API_SECRET_KEY
 
-  // Add this after the MAPBOX_TOKEN constant
   if (!MAPBOX_TOKEN) {
     console.error(
-      "Mapbox token is missing. Please add NEXT_PUBLIC_MAPBOX_API_SECRET_KEY to your environment variables.",
+      "Mapbox token is missing.",
     )
   }
 
   const [viewState, setViewState] = useState({
-    latitude: 37.7749, // Default coordinates (San Francisco)
+    // Default coordinates (San Francisco!!)
+    latitude: 37.7749,
     longitude: -122.4194,
     zoom: 10,
   })
@@ -48,7 +64,7 @@ export default function ListingMap({ listings, height = "1000px", width = "80%" 
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
 
-  // Position the map based on listings
+  // Position the map based on avg locations of listings
   useEffect(() => {
     if (listings && listings.length > 0) {
       // Calculate the center of all listings
@@ -81,33 +97,16 @@ export default function ListingMap({ listings, height = "1000px", width = "80%" 
     }
   }
 
-  // Add this at the beginning of the return statement
+  // Don't display mapbox if token is missing
   if (!MAPBOX_TOKEN) {
     return (
-      <div
-        style={{
-          height,
-          width,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f5fff0",
-          border: "1px solid #d1edc4",
-          borderRadius: "8px",
-          padding: "20px",
-          textAlign: "center",
-        }}
-      >
-        <div>
-          <h3 style={{ color: "#222222", marginBottom: "10px" }}>Map cannot be displayed</h3>
-          <p style={{ color: "#666666" }}>Mapbox API key is missing. Please check your environment variables.</p>
-        </div>
-      </div>
+      <p> Mapbox API key is missing.</p>
     )
   }
 
   return (
     <div style={{ height, width }}>
+      {/* Mapbox elements styles*/}
       <style jsx global>{`
         .marker-container {
           transform: translate(-50%, -100%);
@@ -237,7 +236,7 @@ export default function ListingMap({ listings, height = "1000px", width = "80%" 
       <Map
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
-        mapStyle="mapbox://styles/mapbox/streets-v12" // Using a more colorful but clean map style
+        mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken={MAPBOX_TOKEN}
       >
         <NavigationControl position="top-right" />
